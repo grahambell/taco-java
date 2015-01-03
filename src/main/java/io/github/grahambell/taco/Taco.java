@@ -182,9 +182,9 @@ public class Taco implements TacoTransport.Filter {
      * Class for objects which refer to an object cached by the Taco server.
      */
     public class Object {
-        final int number;
+        private final int number;
 
-        Object(int number) {
+        private Object(int number) {
             this.number = number;
         }
 
@@ -224,7 +224,7 @@ public class Taco implements TacoTransport.Filter {
 
         private final String name;
 
-        Context(String name) {
+        private Context(String name) {
             this.name = name;
         }
 

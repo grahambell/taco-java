@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 
-class TacoServer implements TacoTransport.Filter {
+public class TacoServer implements TacoTransport.Filter {
     protected TacoTransport xp;
     protected Map<Integer, Object> objects = new HashMap();
     protected int objectNum = 0;
