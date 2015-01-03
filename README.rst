@@ -27,9 +27,13 @@ For more information about Taco, please see the
 Building
 --------
 
-This package can be build using Maven::
+This package can be built using Maven::
 
     mvn package
+
+And the documentation can be built with::
+
+    mvn javadoc:javadoc
 
 License
 -------

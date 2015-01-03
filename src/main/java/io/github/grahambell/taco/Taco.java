@@ -178,6 +178,9 @@ public class Taco implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Class for objects which refer to an object cached by the Taco server.
+     */
     public class Object {
         final int number;
 
