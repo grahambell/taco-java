@@ -20,7 +20,21 @@ package io.github.grahambell.taco;
 
 import java.util.HashMap;
 
+/**
+ * Chainable HashMap class.
+ *
+ * This class extends <code>HashMap</code> to add a chainable version of the
+ * <code>put</code> method called <code>putc</code>.
+ */
 public class HashMapC<K, V> extends HashMap<K, V> {
+    /**
+     * Put an entry into the <code>Map</code> and return a reference
+     * to the map itself.
+     *
+     * @param key the key for the new entry
+     * @param value the value for the new entry
+     * @return a reference to this object
+     */
     public HashMapC<K, V> putc(K key, V value) {
         put(key, value);
         return this;

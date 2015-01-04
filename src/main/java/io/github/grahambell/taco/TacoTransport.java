@@ -36,11 +36,40 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
+/**
+ * Class for handling the communication between Taco clients and
+ * servers.
+ *
+ * This class provides an interface based on reading and writing messages
+ * as <code>Map&lt;String, Object&gt;</code> objects.  It converts these
+ * messages to and from JSON using the <code>org.json</code> library and
+ * passes them over the specified streams.
+ */
 public class TacoTransport {
+    /**
+     * Reader for the input stream.
+     */
+
     protected BufferedReader in;
+    /**
+     * Writer for the output stream.
+     */
     protected Writer out;
+
+    /**
+     * Object filter.
+     */
     protected Filter filter;
 
+    /**
+     * Construct new TacoTransport object.
+     *
+     * A reader and writer will be constructed for the given streams.
+     *
+     * @param in input stream
+     * @param out output stream
+     * @param filter object filter, or null if not required
+     */
     public TacoTransport(InputStream in, OutputStream out, Filter filter) {
         try {
             this.in = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -53,6 +82,12 @@ public class TacoTransport {
         this.filter = filter;
     }
 
+    /**
+     * Read one message from the input stream.
+     *
+     * @return the message as a <code>Map</code> object
+     * @throws TacoException on error reading or parsing the message
+     */
     public Map<String, Object> read() throws TacoException {
         StringBuilder text = new StringBuilder();
 
@@ -85,6 +120,13 @@ public class TacoTransport {
         }
     }
 
+    /**
+     * Write a message to the output stream.
+     *
+     * @param message the message to be written
+     * @throws TacoException on error converting the message to JSON or
+     *     writing it to the output stream
+     */
     public void write(Map<String, Object> message) throws TacoException {
         try {
             JSONObject json = mapToJson(message);
@@ -100,6 +142,16 @@ public class TacoTransport {
         }
     }
 
+    /**
+     * Convert JSON object to Java Map.
+     *
+     * Each entry in the object is converted using the {@link #jsonToObject}
+     * method.
+     *
+     * @param json the JSON object
+     * @return Java Map representation of the object
+     * @throws TacoException on error in conversion
+     */
     public Map<String, Object> jsonToMap(JSONObject json)
             throws TacoException {
         Map map = new HashMap<String, Object>();
@@ -112,6 +164,16 @@ public class TacoTransport {
         return map;
     }
 
+    /**
+     * Convert JSON array to Java Collection.
+     *
+     * Each entry in the object is converted using the {@link #jsonToObject}
+     * method.
+     *
+     * @param json the JSON array
+     * @return Java Collection representation of the array
+     * @throws TacoException on error in conversion
+     */
     public Collection<Object> jsonToCollection(JSONArray json)
             throws TacoException {
         Collection<Object> list = new ArrayList<Object>();
@@ -123,6 +185,20 @@ public class TacoTransport {
         return list;
     }
 
+    /**
+     * Convert an individual JSON entry to a Java Object.
+     *
+     * JSON objects and arrays are converted using the {@link #jsonToMap}
+     * and {@link #jsonToCollection} methods.  Instances of
+     * <code>Boolean</code>, <code>Number</code> and <code>String</code>
+     * are returned as they are.  If an object filter has been specified
+     * then its <code>mapToObject</code> method is applied to JSON
+     * objects which have been conveted to <code>Map</code> instances.
+     *
+     * @param value an object obtained by parsing part of a JSON message
+     * @return a Java representation of the value
+     * @throws TacoException on error in conversion
+     */
     public Object jsonToObject(Object value) throws TacoException {
         if (JSONObject.NULL == value) {
             return null;
@@ -150,6 +226,16 @@ public class TacoTransport {
         }
     }
 
+    /**
+     * Convert a Java Map to a JSON object.
+     *
+     * Entries of the <code>Map</code> are converted using the
+     * {@link #objectToJson} method.
+     *
+     * @param map the input Map
+     * @return a JSON representation of the Map
+     * @throws TacoException on error in conversion
+     */
     public JSONObject mapToJson(Map<String, Object> map)
             throws TacoException {
         JSONObject json = new JSONObject();
@@ -161,6 +247,16 @@ public class TacoTransport {
         return json;
     }
 
+    /**
+     * Convert a Java Collection to a JSON array.
+     *
+     * Entries of the <code>Collection</code> are converted using the
+     * {@link #objectToJson} method.
+     *
+     * @param list the input Collection
+     * @return a JSON representation of the Collection
+     * @throws TacoException on error in conversion
+     */
     public JSONArray collectionToJson(Collection<Object> list)
             throws TacoException {
         JSONArray json = new JSONArray();
@@ -172,6 +268,23 @@ public class TacoTransport {
         return json;
     }
 
+    /**
+     * Convert an individual Java object to an object suitable for
+     * representation in JSON.
+     *
+     * Instances of <code>Map</code> and <code>Collection</code>
+     * are converted using the {@link #mapToJson} and {@link #collectionToJson}
+     * methods.  Null entries are converted to JSON null values.
+     * Instances of <code>Boolean</code>, <code>Number</code> and
+     * <code>String</code> are returned as they are.  If an object filter
+     * has been specified then its <code>objectToMap</code> is applied
+     * to any other type of value.  When no filter has been provided
+     * and an unknown object type is encountered, an exception is thrown.
+     *
+     * @param value the input object
+     * @return an object suitable for representation in JSON
+     * @throws TacoException on error in conversion
+     */
     public Object objectToJson(Object value) throws TacoException {
         if (value == null) {
             return JSONObject.NULL;
@@ -197,9 +310,37 @@ public class TacoTransport {
         }
     }
 
+    /**
+     * Interface for object filtering methods.
+     *
+     * An implementation of this class can be provided to the TacoTransport
+     * constructor in order to specify how to handle the conversion of
+     * unknown objects to JSON, and also to give a special interpretation
+     * for decoded JSON objects.
+     */
     public interface Filter {
+        /**
+         * Attempt to convert an arbitrary object to a Map for encoding
+         * as JSON.
+         *
+         * @param value the object for conversion
+         * @return the converted Map
+         * @throws TacoException if conversion is not possible
+         */
         public Map<String, Object> objectToMap(Object value)
                 throws TacoException;
+
+        /**
+         * Process decoded JSON objects.
+         *
+         * This method will be applied to <code>Map</code> instances obtained
+         * from decoded JSON objects.
+         *
+         * @param map the decoded JSON object
+         * @return the processed object, or a reference to the original map
+         *     if no processing is necessary
+         * @throws TacoException if conversion fails
+         */
         public Object mapToObject(Map<String, Object> map)
                 throws TacoException;
     }

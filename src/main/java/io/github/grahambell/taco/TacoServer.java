@@ -26,15 +26,47 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * Taco server implementation.
+ */
 public class TacoServer implements TacoTransport.Filter {
+    /**
+     * TacoTransport object used for communication.
+     */
     protected TacoTransport xp;
+
+    /**
+     * Cache of Taco server-side objects.
+     */
     protected Map<Integer, Object> objects = new HashMap();
+
+    /**
+     * Server-side object counter.
+     *
+     * This is incremented each time an object is stored in the cache.
+     */
     protected int objectNum = 0;
 
+    /**
+     * Constructor.
+     *
+     * Creates a TacoTransport using the given streams.
+     *
+     * @param in input stream
+     * @param out output stream
+     */
     public TacoServer(InputStream in, OutputStream out) {
         xp = new TacoTransport(System.in, System.out, this);
     }
 
+    /**
+     * Main program method.
+     *
+     * Constructs a TacoServer object using standard input and standard output,
+     * and invokes its run method.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         TacoServer server = new TacoServer(System.in, System.out);
 
@@ -51,6 +83,17 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Main message processing method.
+     *
+     * Repeatedly reads messages from the TacoTransport until the end is
+     * reached (null is returned).  For each message, the action parameter
+     * is used to look for a matching method in this class.  On success,
+     * a "result" action is written.  If an exception is caught while handling
+     * a message, an "exception" action is written.
+     *
+     * @throws TacoException on error reading or writing a message
+     */
     public void run() throws TacoException {
         while (true) {
             Map<String, Object> message = xp.read();
@@ -102,6 +145,9 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Handler for the "call_class_method" action.
+     */
     public Object call_class_method(Map<String, Object> message)
             throws Exception {
         Class cls = Class.forName((String) message.get("class"));
@@ -117,11 +163,17 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Handler for the "call_function" action.
+     */
     public Object call_function(Map<String, Object> message)
             throws Exception {
         throw new TacoException("not implemented");
     }
 
+    /**
+     * Handler for the "call_method" action.
+     */
     public Object call_method(Map<String, Object> message)
             throws Exception {
         Object object = objects.get((Integer) message.get("number"));
@@ -138,6 +190,9 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Handler for the "construct_object" action.
+     */
     public Object construct_object(Map<String, Object> message)
             throws Exception {
         Class cls = Class.forName((String) message.get("class"));
@@ -152,12 +207,18 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Handler for the "destroy_object" action.
+     */
     public Object destroy_object(Map<String, Object> message)
             throws Exception {
         objects.remove((Integer) message.get("number"));
         return null;
     }
 
+    /**
+     * Handler for the "get_attribute" action.
+     */
     public Object get_attribute(Map<String, Object> message)
             throws Exception {
         Object object = objects.get((Integer) message.get("number"));
@@ -165,11 +226,17 @@ public class TacoServer implements TacoTransport.Filter {
         return object.getClass().getField(name).get(object);
     }
 
+    /**
+     * Handler for the "get_value" action.
+     */
     public Object get_value(Map<String, Object> message)
             throws Exception {
         throw new TacoException("not implemented");
     }
 
+    /**
+     * Handler for the "import_module" action.
+     */
     public Object import_module(Map<String, Object> message)
             throws Exception {
         String name = (String) message.get("name");
@@ -177,6 +244,9 @@ public class TacoServer implements TacoTransport.Filter {
         return null;
     }
 
+    /**
+     * Handler for the "set_attribute" action.
+     */
     public Object set_attribute(Map<String, Object> message)
             throws Exception {
         Object object = objects.get((Integer) message.get("number"));
@@ -185,17 +255,39 @@ public class TacoServer implements TacoTransport.Filter {
         return null;
     }
 
+    /**
+     * Handler for the "set_value" action.
+     */
     public Object set_value(Map<String, Object> message)
             throws Exception {
         throw new TacoException("not implemented");
     }
 
+    /**
+     * Convert an object to a map for encoding as JSON.
+     *
+     * Implementation of the <code>TacoTransport.Filter</code> interface.
+     *
+     * The object is stored in the object cache ({@link #objects})
+     * after incrementing the object counter ({@link #objectNum})
+     * and a <code>Map</code> corresponding to a Taco object reference
+     * special object is returned.
+     */
     public Map<String, Object> objectToMap(Object value) throws TacoException {
         int number = ++ objectNum;
         objects.put(number, value);
         return new HashMapC().putc("_Taco_Object_", number);
     }
 
+    /**
+     * Convert decoded JSON objects to Java objects.
+     *
+     * Implementation of the <code>TacoTransport.Filter</code> interface.
+     *
+     * If the <code>Map</code> is a Taco object reference special object then
+     * the corresponding object from the object cache ({@link #objects})
+     * is returned. Otherwise the original map is returned.
+     */
     public Object mapToObject(Map<String, Object> map) throws TacoException {
         if (map.containsKey("_Taco_Object_")) {
             return objects.get((Integer) map.get("_Taco_Object_"));
@@ -205,6 +297,17 @@ public class TacoServer implements TacoTransport.Filter {
         }
     }
 
+    /**
+     * Create an array of Classes corresponding to a set of
+     * method arguments.
+     *
+     * This method builds an array of Class objects which can be
+     * used to find a method or constructor based on its
+     * signature via reflection.
+     *
+     * @param args collection of method arguments
+     * @return array of Class objects for the given arguments
+     */
     public static Class[] typeArray(Collection<Object> args) {
         Class[] types = new Class[args.size()];
         int i = 0;

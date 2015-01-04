@@ -18,11 +18,26 @@
 
 package io.github.grahambell.taco;
 
+/**
+ * Class of exceptions thrown by the Taco system.
+ */
 public class TacoException extends Exception {
+    /**
+     * Constructor to be used when a source throwable has caused this
+     * exception in the Taco system.
+     *
+     * @param message the error message
+     * @param cause the original exception
+     */
     public TacoException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Constructor to be used without a source throwable.
+     *
+     * @param message the error message
+     */
     public TacoException(String message) {
         super(message);
     }
