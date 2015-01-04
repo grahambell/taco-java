@@ -57,6 +57,16 @@ public class Taco implements TacoTransport.Filter {
     }
 
     /**
+     * Constructor for a Taco client using an existing TacoTransport
+     * object.
+     *
+     * @param xp the transport to be used for communication
+     */
+    protected Taco(TacoTransport xp) {
+        this.xp = xp;
+    }
+
+    /**
      * Perform an interaction with the Taco server.
      *
      * @param message the message to send to the Taco server

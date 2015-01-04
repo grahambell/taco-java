@@ -83,6 +83,17 @@ public class TacoTransport {
     }
 
     /**
+     * Constructor which does not set up input and output streams.
+     *
+     * @param filter object filter
+     */
+    protected TacoTransport(Filter filter) {
+        this.in = null;
+        this.out = null;
+        this.filter = filter;
+    }
+
+    /**
      * Read one message from the input stream.
      *
      * @return the message as a <code>Map</code> object
