@@ -141,19 +141,6 @@ public class Taco implements TacoTransport.Filter {
                 .putc("context", context == null ? null : context.getName()));
     }
 
-    private java.lang.Object callMethod(int number, String name,
-            Collection<?> args, Map<String, ?> kwargs,
-            Context context)
-            throws TacoException {
-        return interact(new HashMapC()
-                .putc("action", "call_method")
-                .putc("number", new Integer(number))
-                .putc("name", name)
-                .putc("args", args)
-                .putc("kwargs", kwargs)
-                .putc("context", context == null ? null : context.getName()));
-    }
-
     /**
      * Invoke an object constructor.
      *
@@ -171,21 +158,6 @@ public class Taco implements TacoTransport.Filter {
                 .putc("class", className)
                 .putc("args", args)
                 .putc("kwargs", kwargs));
-    }
-
-    private void destroyObject(int number)
-            throws TacoException {
-        interact(new HashMapC()
-                .putc("action", "destroy_object")
-                .putc("number", new Integer(number)));
-    }
-
-    private java.lang.Object getAttribute(int number, String name)
-            throws TacoException {
-        return interact(new HashMapC()
-                .putc("action", "get_attribute")
-                .putc("number", new Integer(number))
-                .putc("name", name));
     }
 
     /**
@@ -218,15 +190,6 @@ public class Taco implements TacoTransport.Filter {
                 .putc("name", name)
                 .putc("args", args)
                 .putc("kwargs", kwargs));
-    }
-
-    private void setAttribute(int number, String name, java.lang.Object value)
-            throws TacoException {
-        interact(new HashMapC()
-                .putc("action", "set_attribute")
-                .putc("number", new Integer(number))
-                .putc("name", name)
-                .putc("value", value));
     }
 
     /**
@@ -312,7 +275,9 @@ public class Taco implements TacoTransport.Filter {
          */
         @Override
         protected void finalize() throws TacoException {
-            destroyObject(number);
+            interact(new HashMapC()
+                    .putc("action", "destroy_object")
+                    .putc("number", new Integer(number)));
         }
 
         /**
@@ -339,7 +304,14 @@ public class Taco implements TacoTransport.Filter {
                 Collection<?> args, Map<String, ?> kwargs,
                 Context context)
                 throws TacoException {
-            return Taco.this.callMethod(number, name, args, kwargs, context);
+            return interact(new HashMapC()
+                    .putc("action", "call_method")
+                    .putc("number", new Integer(number))
+                    .putc("name", name)
+                    .putc("args", args)
+                    .putc("kwargs", kwargs)
+                    .putc("context", context == null
+                            ? null : context.getName()));
         }
 
         /**
@@ -352,8 +324,12 @@ public class Taco implements TacoTransport.Filter {
          */
         public java.lang.Object getAttribute(String name)
                 throws TacoException {
-            return Taco.this.getAttribute(number, name);
+            return interact(new HashMapC()
+                    .putc("action", "get_attribute")
+                    .putc("number", new Integer(number))
+                    .putc("name", name));
         }
+
 
         /**
          * Set the value of an attribute of the corresponding object in the
@@ -365,7 +341,11 @@ public class Taco implements TacoTransport.Filter {
          */
         public void setAttribute(String name, java.lang.Object value)
                 throws TacoException {
-            Taco.this.setAttribute(number, name, value);
+            interact(new HashMapC()
+                    .putc("action", "set_attribute")
+                    .putc("number", new Integer(number))
+                    .putc("name", name)
+                    .putc("value", value));
         }
     }
 
