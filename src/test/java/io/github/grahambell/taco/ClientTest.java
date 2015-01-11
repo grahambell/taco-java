@@ -54,11 +54,32 @@ public class ClientTest extends Taco {
                 .put("context", JSONObject.NULL)
         ));
 
+        callClassMethod("SomeOtherClass", "someOtherMethod", null, null);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_class_method")
+                .put("class", "SomeOtherClass")
+                .put("name", "someOtherMethod")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
+
         callFunction("someFunction", null, null, null);
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "call_function")
                 .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
+
+        callFunction("someOtherFunction", null, null);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someOtherFunction")
                 .put("args", JSONObject.NULL)
                 .put("kwargs", JSONObject.NULL)
                 .put("context", JSONObject.NULL)
@@ -117,6 +138,17 @@ public class ClientTest extends Taco {
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "call_method")
                 .put("name", "someMethod")
+                .put("number", 58)
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
+
+        obj.callMethod("someOtherMethod", null, null);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_method")
+                .put("name", "someOtherMethod")
                 .put("number", 58)
                 .put("args", JSONObject.NULL)
                 .put("kwargs", JSONObject.NULL)

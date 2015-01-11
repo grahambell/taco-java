@@ -120,6 +120,23 @@ public class Taco implements TacoTransport.Filter {
     }
 
     /**
+     * Invoke a (static) class method call within the associated Taco server
+     * script.  No context is specified.
+     *
+     * @param className the name of the class
+     * @param name the name of the method
+     * @param args positional arguments
+     * @param kwargs keyword arguments
+     * @return the result of the method call
+     * @throws TacoException on error
+     */
+    public java.lang.Object callClassMethod(String className, String name,
+            Collection<?> args, Map<String, ?> kwargs)
+            throws TacoException {
+        return callClassMethod(className, name, args, kwargs, null);
+    }
+
+    /**
      * Invoke a function call within the associated Taco server script.
      *
      * @param name the name of the function
@@ -139,6 +156,22 @@ public class Taco implements TacoTransport.Filter {
                 .putc("args", args)
                 .putc("kwargs", kwargs)
                 .putc("context", context == null ? null : context.getName()));
+    }
+
+    /**
+     * Invoke a function call within the associated Taco server script.
+     * No context is specified.
+     *
+     * @param name the name of the function
+     * @param args positional arguments
+     * @param kwargs keyword arguments
+     * @return the result of the function call
+     * @throws TacoException on error
+     */
+    public java.lang.Object callFunction(String name,
+            Collection<?> args, Map<String, ?> kwargs)
+            throws TacoException {
+        return callFunction(name, args, kwargs, null);
     }
 
     /**
@@ -312,6 +345,22 @@ public class Taco implements TacoTransport.Filter {
                     .putc("kwargs", kwargs)
                     .putc("context", context == null
                             ? null : context.getName()));
+        }
+
+        /**
+         * Invoke a method on the corresponding object in the server's cache.
+         * No context is specified.
+         *
+         * @param name method name
+         * @param args positional arguments
+         * @param kwargs keyword arguments
+         * @return the value returned by the method
+         * @throws TacoException on error
+         */
+        public java.lang.Object callMethod(String name,
+                Collection<?> args, Map<String, ?> kwargs)
+                throws TacoException {
+            return callMethod(name, args, kwargs, null);
         }
 
         /**
