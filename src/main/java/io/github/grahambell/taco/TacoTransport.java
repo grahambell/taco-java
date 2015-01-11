@@ -316,7 +316,7 @@ public class TacoTransport {
                 throw new TacoException("unknown object type to turn to JSON");
             }
             else {
-                return filter.objectToMap(value);
+                return mapToJson(filter.objectToMap(value));
             }
         }
     }
