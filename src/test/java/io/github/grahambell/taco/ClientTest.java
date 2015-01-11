@@ -25,6 +25,9 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
+import static io.github.grahambell.taco.JsonMatcher.matchesJson;
 
 public class ClientTest extends Taco {
     public ClientTest() {
@@ -42,23 +45,48 @@ public class ClientTest extends Taco {
 
         callClassMethod("SomeClass", "someMethod", null, null, null);
 
-        assertEquals("call_class_method", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_class_method")
+                .put("class", "SomeClass")
+                .put("name", "someMethod")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
 
         callFunction("someFunction", null, null, null);
 
-        assertEquals("call_function", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
 
         getValue("SomeVariable");
 
-        assertEquals("get_value", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "get_value")
+                .put("name", "SomeVariable")
+        ));
 
         importModule("SomeModule", null, null);
 
-        assertEquals("import_module", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "import_module")
+                .put("name", "SomeModule")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+        ));
 
         setValue("SomeValue", null);
 
-        assertEquals("set_value", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "set_value")
+                .put("name", "SomeValue")
+                .put("value", JSONObject.NULL)
+        ));
     }
 
     @Test
@@ -71,7 +99,12 @@ public class ClientTest extends Taco {
 
         Object obj = constructObject("SomeClass", null, null);
 
-        assertEquals("construct_object", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "construct_object")
+                .put("class", "SomeClass")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+        ));
 
         assertEquals("<Taco object 58>", obj.toString());
 
@@ -81,19 +114,38 @@ public class ClientTest extends Taco {
 
         obj.callMethod("someMethod", null, null, null);
 
-        assertEquals("call_method", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_method")
+                .put("name", "someMethod")
+                .put("number", 58)
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
 
         obj.getAttribute("someAttribute");
 
-        assertEquals("get_attribute", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "get_attribute")
+                .put("name", "someAttribute")
+                .put("number", 58)
+        ));
 
         obj.setAttribute("someAttribute", "some value");
 
-        assertEquals("set_attribute", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "set_attribute")
+                .put("name", "someAttribute")
+                .put("number", 58)
+                .put("value", "some value")
+        ));
 
         obj.finalize();
 
-        assertEquals("destroy_object", xp.getMessage().get("action"));
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "destroy_object")
+                .put("number", 58)
+        ));
     }
 
     private static class DummyTransport extends TacoTransport {
