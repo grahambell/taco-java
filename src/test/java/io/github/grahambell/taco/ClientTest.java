@@ -77,6 +77,46 @@ public class ClientTest extends Taco {
                 .put("context", JSONObject.NULL)
         ));
 
+        callFunction("someFunction", null, null, Context.SCALAR);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "scalar")
+        ));
+
+        callFunction("someFunction", null, null, Context.LIST);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "list")
+        ));
+
+        callFunction("someFunction", null, null, Context.MAP);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "map")
+        ));
+
+        callFunction("someFunction", null, null, Context.VOID);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "void")
+        ));
+
         callFunction("someOtherFunction", null, null);
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
