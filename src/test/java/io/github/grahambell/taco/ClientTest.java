@@ -18,8 +18,10 @@
 
 package io.github.grahambell.taco;
 
+import java.util.Arrays;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.junit.Test;
@@ -170,6 +172,20 @@ public class ClientTest extends Taco {
                 .put("name", "someAttribute")
                 .put("number", 58)
                 .put("value", "some value")
+        ));
+
+        callFunction("someFunction",
+                Arrays.asList(new java.lang.Object[] {obj}),
+                null);
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "someFunction")
+                .put("args", new JSONArray(new java.lang.Object[] {
+                        new JSONObject().put("_Taco_Object_", 58)
+                        }))
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
         ));
 
         obj.finalize();
