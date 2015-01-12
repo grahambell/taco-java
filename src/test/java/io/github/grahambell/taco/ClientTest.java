@@ -235,32 +235,4 @@ public class ClientTest extends Taco {
                 .put("number", 58)
         ));
     }
-
-    private static class DummyTransport extends TacoTransport {
-        private JSONObject response;
-        private JSONObject message;
-
-        public DummyTransport(TacoTransport.Filter filter) {
-            super(filter);
-        }
-
-        public void setResponse(JSONObject response) {
-            this.response = response;
-        }
-
-        public JSONObject getMessage() {
-            return message;
-        }
-
-        @Override
-        public Map<String, java.lang.Object> read() throws TacoException {
-            return jsonToMap(response);
-        }
-
-        @Override
-        public void write(Map<String, java.lang.Object> message)
-                throws TacoException{
-            this.message = mapToJson(message);
-        }
-    }
 }

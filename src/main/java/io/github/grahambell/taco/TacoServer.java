@@ -60,6 +60,16 @@ public class TacoServer implements TacoTransport.Filter {
     }
 
     /**
+     * Constructor for a TacoServer using an existing TacoTransport
+     * object.
+     *
+     * @param xp the transport to be used for communication
+     */
+    protected TacoServer(TacoTransport xp) {
+        this.xp = xp;
+    }
+
+    /**
      * Main program method.
      *
      * Constructs a TacoServer object using standard input and standard output,
