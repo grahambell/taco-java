@@ -35,6 +35,12 @@ And the documentation can be built with::
 
     mvn javadoc:javadoc
 
+The "package" build includes unit tests, but this package also contains
+integration tests which require the presence of the Python and Perl
+Taco modules.  These tests can be run with::
+
+    mvn verify
+
 License
 -------
 
