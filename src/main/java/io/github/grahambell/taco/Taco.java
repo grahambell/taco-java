@@ -19,6 +19,7 @@
 package io.github.grahambell.taco;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -240,6 +241,28 @@ public class Taco implements TacoTransport.Filter {
     }
 
     /**
+     * Instruct the server to import the given module.
+     *
+     * @param name the name of the module
+     * @param args positional arguments
+     * @throws TacoException on error
+     */
+    public void importModule(String name, Collection<?> args)
+            throws TacoException {
+        importModule(name, args, null);
+    }
+
+    /**
+     * Instruct the server to import the given module.
+     *
+     * @param name the name of the module
+     * @throws TacoException on error
+     */
+    public void importModule(String name) throws TacoException {
+        importModule(name, null, null);
+    }
+
+    /**
      * Set the value of the given variable.
      *
      * @param name the name of the variable
@@ -296,6 +319,124 @@ public class Taco implements TacoTransport.Filter {
         }
         else {
             return map;
+        }
+    }
+
+    /**
+     * Create a new convenience {@link Invocable} object constructor.
+     *
+     * @param className the name of the object class to construct
+     * @return constructor
+     */
+    public Constructor constructor(String className) {
+        return new Constructor(className);
+    }
+
+    /**
+     * Create a new convenience function {@link Invocable}.
+     *
+     * @param name the name of the function
+     * @param context context in which to invoke the function
+     * @return function
+     */
+    public Function function(String name, Context context) {
+        return new Function(name, context);
+    }
+
+    /**
+     * Create a new convenience function {@link Invocable}.
+     * No context is specified.
+     *
+     * @param name the name of the function
+     * @return function
+     */
+    public Function function(String name) {
+        return new Function(name, null);
+    }
+
+    /**
+     * Interface for invocable convenience routines.
+     *
+     * This interface is for objects which allow a given Taco action
+     * to be invoked in a more convenient manner.
+     */
+    public interface Invocable {
+        /**
+         * Invoke the associated action.
+         */
+        public java.lang.Object invoke(java.lang.Object... args)
+                throws TacoException;
+    }
+
+    /**
+     * Object to conveniently invoke an object constructor.
+     */
+    public class Constructor implements Invocable {
+        /**
+         * Name of the class of object to construct.
+         */
+        private final String className;
+
+        /**
+         * Constructor.
+         *
+         * @param className the name of the class of object to construct
+         */
+        private Constructor(String className) {
+            this.className = className;
+        }
+
+        /**
+         * Invoke the object constructor.
+         *
+         * This method does not allow keyword arguments to be specified.
+         *
+         * @param args positional arguments for the constructor
+         * @return a reference to the newly constructed object
+         * @throws TacoException on error.
+         */
+        public Object invoke(java.lang.Object... args) throws TacoException {
+            return constructObject(className, Arrays.asList(args), null);
+        }
+    }
+
+    /**
+     * Object to conveniently invoke a function.
+     */
+    public class Function implements Invocable {
+        /**
+         * Name of the function to call.
+         */
+        private final String name;
+
+        /**
+         * Context in which to call the function.
+         */
+        private final Context context;
+
+        /**
+         * Constructor.
+         *
+         * @param name the name of the function to call
+         * @param context the context in which to call the function
+         */
+        private Function(String name, Context context) {
+            this.name = name;
+            this.context = context;
+        }
+
+        /**
+         * Invoke the function.
+         *
+         * This method does not allow keyword arguments to be specified.
+         *
+         * @param args positional arguments for the function
+         * @return the result of the function call
+         * @throws TacoException on error
+         */
+        public java.lang.Object invoke(java.lang.Object... args)
+                throws TacoException {
+            return callFunction(name, Arrays.asList(args), null, context);
         }
     }
 
@@ -409,6 +550,68 @@ public class Taco implements TacoTransport.Filter {
                     .putc("number", new Integer(number))
                     .putc("name", name)
                     .putc("value", value));
+        }
+
+        /**
+         * Create a new convenience method {@link Invocable}.
+         *
+         * @param name the name of the method
+         * @param context context in which to invoke the method
+         * @return method
+         */
+        public Method method(String name, Context context) {
+            return new Method(name, context);
+        }
+
+        /**
+         * Create a new convenience method {@link Invocable}.
+         * No context is specified.
+         *
+         * @param name the name of the method
+         * @return method
+         */
+        public Method method(String name) {
+            return new Method(name, null);
+        }
+
+        /**
+         * Object to conveniently invoke an object method.
+         */
+        public class Method implements Invocable {
+            /**
+             * Name of the method to call.
+             */
+            private final String name;
+
+            /**
+             * Context in which to call the method.
+             */
+            private final Context context;
+
+            /**
+             * Constructor.
+             *
+             * @param name the name of the method
+             * @param context the context in which to call the method
+             */
+            private Method(String name, Context context) {
+                this.name = name;
+                this.context = context;
+            }
+
+            /**
+             * Invoke the method.
+             *
+             * This method does not allow keyword arguments to be specified.
+             *
+             * @param args positional arguments for the method
+             * @return the result of the method call
+             * @throws TacoException on error
+             */
+            public java.lang.Object invoke(java.lang.Object... args)
+                    throws TacoException {
+                return callMethod(name, Arrays.asList(args), null, context);
+            }
         }
     }
 

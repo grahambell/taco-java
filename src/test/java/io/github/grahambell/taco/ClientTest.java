@@ -45,7 +45,7 @@ public class ClientTest extends Taco {
                 .put("action", "result")
                 .put("result", "some result"));
 
-        callClassMethod("SomeClass", "someMethod", null, null, null);
+        callClassMethod("SomeClass", "someMethod", null, null, Context.SCALAR);
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "call_class_method")
@@ -53,7 +53,7 @@ public class ClientTest extends Taco {
                 .put("name", "someMethod")
                 .put("args", JSONObject.NULL)
                 .put("kwargs", JSONObject.NULL)
-                .put("context", JSONObject.NULL)
+                .put("context", "scalar")
         ));
 
         callClassMethod("SomeOtherClass", "someOtherMethod", null, null);
@@ -134,13 +134,14 @@ public class ClientTest extends Taco {
                 .put("name", "SomeVariable")
         ));
 
-        importModule("SomeModule", null, null);
+        importModule("SomeModule", Arrays.asList("alpha", "bravo"),
+                new HashMapC().putc("charlie", "delta"));
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "import_module")
                 .put("name", "SomeModule")
-                .put("args", JSONObject.NULL)
-                .put("kwargs", JSONObject.NULL)
+                .put("args", new JSONArray(new String[]{"alpha", "bravo"}))
+                .put("kwargs", new JSONObject().put("charlie", "delta"))
         ));
 
         setValue("SomeValue", null);
@@ -160,13 +161,15 @@ public class ClientTest extends Taco {
                 .put("action", "result")
                 .put("result", new JSONObject().put("_Taco_Object_", 58)));
 
-        Object obj = constructObject("SomeClass", null, null);
+        Object obj = constructObject("SomeClass",
+                Arrays.asList("juliette", "alpha"),
+                new HashMapC().putc("victor", "alpha"));
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "construct_object")
                 .put("class", "SomeClass")
-                .put("args", JSONObject.NULL)
-                .put("kwargs", JSONObject.NULL)
+                .put("args", new JSONArray(new String[]{"juliette", "alpha"}))
+                .put("kwargs", new JSONObject().put("victor", "alpha"))
         ));
 
         assertEquals("<Taco object 58>", obj.toString());
@@ -233,6 +236,108 @@ public class ClientTest extends Taco {
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
                 .put("action", "destroy_object")
                 .put("number", 58)
+        ));
+    }
+
+    @Test
+    public void testShortForms() throws TacoException {
+        DummyTransport xp = (DummyTransport) this.xp;
+
+        xp.setResponse(new JSONObject()
+                .put("action", "result")
+                .put("result", "some result"));
+
+        importModule("ModuleA", Arrays.asList("opt1", "opt2"));
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "import_module")
+                .put("name", "ModuleA")
+                .put("args", new JSONArray(new String[]{"opt1", "opt2"}))
+                .put("kwargs", JSONObject.NULL)
+        ));
+
+        importModule("ModuleA");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "import_module")
+                .put("name", "ModuleA")
+                .put("args", JSONObject.NULL)
+                .put("kwargs", JSONObject.NULL)
+        ));
+    }
+
+    @Test
+    public void testConvenienceInvocables() throws TacoException {
+        DummyTransport xp = (DummyTransport) this.xp;
+
+        xp.setResponse(new JSONObject()
+                .put("action", "result")
+                .put("result", new JSONObject().put("_Taco_Object_", 99)));
+
+        Constructor newObject = constructor("ObjectClass");
+
+        Object obj = newObject.invoke("arg1", "arg2", "arg3");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "construct_object")
+                .put("class", "ObjectClass")
+                .put("args", new JSONArray(
+                        new String[]{"arg1", "arg2", "arg3"}))
+                .put("kwargs", JSONObject.NULL)
+        ));
+
+        assertEquals("<Taco object 99>", obj.toString());
+
+        Object.Method method = obj.method("someMethod", Context.MAP);
+
+        method.invoke("mike", "alpha", "papa");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_method")
+                .put("name", "someMethod")
+                .put("number", 99)
+                .put("args", new JSONArray(
+                        new String[]{"mike", "alpha", "papa"}))
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "map")
+        ));
+
+        Object.Method nullMethod = obj.method("someNullMethod");
+
+        nullMethod.invoke("november", "uniform", "lima", "lima");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_method")
+                .put("name", "someNullMethod")
+                .put("number", 99)
+                .put("args", new JSONArray(
+                        new String[]{"november", "uniform", "lima", "lima"}))
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
+        ));
+
+        Function function = function("anotherFunction", Context.LIST);
+
+        function.invoke("x", "y", "z");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "anotherFunction")
+                .put("args", new JSONArray(new String[]{"x", "y", "z"}))
+                .put("kwargs", JSONObject.NULL)
+                .put("context", "list")
+        ));
+
+        Function nullFunction = function("yetAnotherFunction");
+
+        nullFunction.invoke("o", "p", "q");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "call_function")
+                .put("name", "yetAnotherFunction")
+                .put("args", new JSONArray(new String[]{"o", "p", "q"}))
+                .put("kwargs", JSONObject.NULL)
+                .put("context", JSONObject.NULL)
         ));
     }
 }
