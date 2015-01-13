@@ -28,7 +28,7 @@ public class JavaIT {
     Taco taco;
 
     public JavaIT() throws TacoException {
-        taco = new Taco("java");
+        taco = new Taco("scripts/taco-java", true);
     }
 
     @Test

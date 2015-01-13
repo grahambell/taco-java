@@ -42,7 +42,21 @@ public class Taco implements TacoTransport.Filter {
      * @param lang name of language for which to launch a Taco server script
      */
     public Taco(String lang) throws TacoException {
-        ProcessBuilder pb = new ProcessBuilder("taco-" + lang);
+        this(lang, false);
+    }
+
+    /**
+     * Construct Taco client given either the language or script path.
+     *
+     * @param langOrScript language (for automatic script name determination)
+     *     or script (with path if not in the executable search path)
+     * @param byScriptPath true if a script path is being provided, inhibits
+     *     construction of script name "taco-LANGUAGE".
+     */
+    public Taco(String langOrScript, boolean byScriptPath)
+            throws TacoException {
+        ProcessBuilder pb = new ProcessBuilder(
+                byScriptPath ? langOrScript : ("taco-" + langOrScript));
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 
         try {
