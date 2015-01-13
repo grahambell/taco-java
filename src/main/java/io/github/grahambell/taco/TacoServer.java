@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -161,7 +161,7 @@ public class TacoServer implements TacoTransport.Filter {
     public Object call_class_method(Map<String, Object> message)
             throws Exception {
         Class cls = Class.forName((String) message.get("class"));
-        Collection<Object> args = (Collection<Object>) message.get("args");
+        List<Object> args = (List<Object>) message.get("args");
         String name = (String) message.get("name");
 
         if (args == null) {
@@ -187,7 +187,7 @@ public class TacoServer implements TacoTransport.Filter {
     public Object call_method(Map<String, Object> message)
             throws Exception {
         Object object = objects.get((Integer) message.get("number"));
-        Collection<Object> args = (Collection<Object>) message.get("args");
+        List<Object> args = (List<Object>) message.get("args");
         String name = (String) message.get("name");
 
         if (args == null) {
@@ -206,7 +206,7 @@ public class TacoServer implements TacoTransport.Filter {
     public Object construct_object(Map<String, Object> message)
             throws Exception {
         Class cls = Class.forName((String) message.get("class"));
-        Collection<Object> args = (Collection<Object>) message.get("args");
+        List<Object> args = (List<Object>) message.get("args");
 
         if (args == null) {
             return cls.getConstructor().newInstance();
@@ -318,7 +318,7 @@ public class TacoServer implements TacoTransport.Filter {
      * @param args collection of method arguments
      * @return array of Class objects for the given arguments
      */
-    public static Class[] typeArray(Collection<Object> args) {
+    public static Class[] typeArray(List<Object> args) {
         Class[] types = new Class[args.size()];
         int i = 0;
 

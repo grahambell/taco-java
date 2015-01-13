@@ -27,9 +27,10 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -176,18 +177,18 @@ public class TacoTransport {
     }
 
     /**
-     * Convert JSON array to Java Collection.
+     * Convert JSON array to Java List.
      *
      * Each entry in the object is converted using the {@link #jsonToObject}
      * method.
      *
      * @param json the JSON array
-     * @return Java Collection representation of the array
+     * @return Java List representation of the array
      * @throws TacoException on error in conversion
      */
-    public Collection<Object> jsonToCollection(JSONArray json)
+    public List<Object> jsonToList(JSONArray json)
             throws TacoException {
-        Collection<Object> list = new ArrayList<Object>();
+        List<Object> list = new ArrayList<Object>();
 
         for (int i = 0; i < json.length(); i ++) {
             list.add(jsonToObject(json.get(i)));
@@ -200,7 +201,7 @@ public class TacoTransport {
      * Convert an individual JSON entry to a Java Object.
      *
      * JSON objects and arrays are converted using the {@link #jsonToMap}
-     * and {@link #jsonToCollection} methods.  Instances of
+     * and {@link #jsonToList} methods.  Instances of
      * <code>Boolean</code>, <code>Number</code> and <code>String</code>
      * are returned as they are.  If an object filter has been specified
      * then its <code>mapToObject</code> method is applied to JSON
@@ -225,7 +226,7 @@ public class TacoTransport {
             }
         }
         else if (value instanceof JSONArray) {
-            return jsonToCollection((JSONArray) value);
+            return jsonToList((JSONArray) value);
         }
         else if ((value instanceof Boolean)
                 || (value instanceof Number)
