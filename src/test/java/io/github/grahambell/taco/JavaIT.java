@@ -36,9 +36,9 @@ public class JavaIT {
         Taco.Object sb = taco.constructObject("java.lang.StringBuilder",
                 null, null);
 
-        sb.callMethod("append", Arrays.asList(new String[] {"a"}), null);
-        sb.callMethod("append", Arrays.asList(new String[] {"-"}), null);
-        sb.callMethod("append", Arrays.asList(new String[] {"z"}), null);
+        sb.callMethod("append", Arrays.asList("a"), null);
+        sb.callMethod("append", Arrays.asList("-"), null);
+        sb.callMethod("append", Arrays.asList("z"), null);
 
         assertEquals("a-z", (String) sb.callMethod("toString", null, null));
     }

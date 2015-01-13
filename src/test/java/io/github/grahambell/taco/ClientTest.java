@@ -215,7 +215,7 @@ public class ClientTest extends Taco {
         ));
 
         callFunction("someFunction",
-                Arrays.asList(new java.lang.Object[] {obj}),
+                Arrays.asList(obj),
                 null);
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()

@@ -43,18 +43,18 @@ public class PerlIT {
                         .putc("month", 4).putc("day", 1));
 
         assertEquals("2000/04/01", (String) dt.callMethod("ymd",
-                Arrays.asList(new String[] {"/"}), null));
+                Arrays.asList("/"), null));
 
         taco.importModule("Data::Dumper", null, null);
 
         assertThat((String) taco.callFunction("Dumper",
-                Arrays.asList(new Object[] {dt}), null),
+                Arrays.asList(dt), null),
                 not(containsString("_taco_test_attr")));
 
         dt.setAttribute("_taco_test_attr", 12345);
 
         assertThat((String) taco.callFunction("Dumper",
-                Arrays.asList(new Object[] {dt}), null),
+                Arrays.asList(dt), null),
                 containsString("_taco_test_attr"));
 
         assertEquals(new Integer(12345),
@@ -65,10 +65,10 @@ public class PerlIT {
         Taco.Object dur = taco.constructObject("DateTime::Duration", null,
                 new HashMapC().putc("days", 3));
 
-        dt.callMethod("add_duration", Arrays.asList(new Object[] {dur}), null);
+        dt.callMethod("add_duration", Arrays.asList(dur), null);
 
         assertEquals("04-04-2000", (String) dt.callMethod("strftime",
-                Arrays.asList(new String[] {"%d-%m-%Y"}), null));
+                Arrays.asList("%d-%m-%Y"), null));
 
         dt = (Taco.Object) taco.callClassMethod("DateTime", "from_epoch",
                 null, new HashMapC().putc("epoch", 15));

@@ -44,7 +44,7 @@ public class PythonIT {
         assertEquals(0.0,
                 ((Double) taco.callFunction(
                         "math.sin",
-                        Arrays.asList(new Double[] {Math.PI}),
+                        Arrays.asList(Math.PI),
                         null
                 )).doubleValue(),
                 1.0E-6);
@@ -80,7 +80,7 @@ public class PythonIT {
         taco.importModule("datetime", null, null);
 
         Taco.Object dt = taco.constructObject("datetime.datetime",
-                Arrays.asList(new Integer[] {2000, 12, 25}), null);
+                Arrays.asList(2000, 12, 25), null);
 
         assertEquals("datetime",
                 (String) ((Taco.Object) dt.getAttribute("__class__"))
@@ -91,25 +91,25 @@ public class PythonIT {
         assertEquals(new Integer(25), (Integer) dt.getAttribute("day"));
 
         assertEquals("2000-12-25", (String) dt.callMethod("strftime",
-                Arrays.asList(new String[] {"%Y-%m-%d"}), null));
+                Arrays.asList("%Y-%m-%d"), null));
 
         Taco.Object dt_d = (Taco.Object) dt.callMethod("date", null, null);
         Taco.Object dt_t = taco.constructObject("datetime.time",
-                Arrays.asList(new Integer[] {15, 0}), null);
+                Arrays.asList(15, 0), null);
 
         Taco.Object dt_c = (Taco.Object) taco.callClassMethod(
                 "datetime.datetime", "combine",
-                Arrays.asList(new Object[] {dt_d, dt_t}), null);
+                Arrays.asList(dt_d, dt_t), null);
 
         Taco.Object dt_cp = (Taco.Object) dt_c.callMethod("replace", null,
                 new HashMapC().putc("year", 2010));
 
         assertEquals("25/12/2010 03:00 PM",
                 (String) dt_cp.callMethod("strftime",
-                Arrays.asList(new String[] {"%d/%m/%Y %I:%M %p"}), null));
+                Arrays.asList("%d/%m/%Y %I:%M %p"), null));
 
         String repr = (String) taco.callFunction("repr",
-                Arrays.asList(new Object[] {dt_cp}), null);
+                Arrays.asList(dt_cp), null);
 
         assertThat(repr, startsWith("datetime.datetime(2010"));
     }
