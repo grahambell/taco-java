@@ -72,6 +72,12 @@ public class PythonIT {
 
         Object version_info = taco.getValue("sys.version_info");
 
+        // On Python 2, the version_info doesn't become a JSON list
+        // automatically.
+        if (version_info instanceof Taco.Object) {
+            version_info = taco.function("list").invoke(version_info);
+        }
+
         assertTrue(version_info instanceof List);
 
         assertThat(((List<Integer>) version_info).get(0),
