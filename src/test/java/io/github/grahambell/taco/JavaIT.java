@@ -42,4 +42,22 @@ public class JavaIT {
 
         assertEquals("a-z", (String) sb.callMethod("toString", null, null));
     }
+
+    @Test
+    public void testConvenienceScanner() throws TacoException {
+        taco.importModule("java.util.Scanner");
+        taco.importModule("java.io.StringReader");
+
+        Taco.Object scanner = taco.constructor("java.util.Scanner").invoke(
+            taco.constructor("java.io.StringReader").invoke("1 1 2 3 5 8"));
+
+        Taco.Object.Method nextInt = scanner.method("nextInt");
+
+        assertEquals(1, nextInt.invoke());
+        assertEquals(1, nextInt.invoke());
+        assertEquals(2, nextInt.invoke());
+        assertEquals(3, nextInt.invoke());
+        assertEquals(5, nextInt.invoke());
+        assertEquals(8, nextInt.invoke());
+    }
 }

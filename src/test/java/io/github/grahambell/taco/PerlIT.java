@@ -76,4 +76,36 @@ public class PerlIT {
         assertEquals("1970-01-01T00:00:15", (String) dt.callMethod("datetime",
                 null, null));
     }
+
+    @Test
+    public void testConveniencePodCheck() throws TacoException {
+        taco.importModule("Pod::Checker");
+        taco.importModule("IO::String");
+
+        Taco.Constructor ioString = taco.constructor("IO::String");
+        Taco.Object out = ioString.invoke();
+        Taco.Object in = ioString.invoke(
+                "=head1\n\n" +
+                "E<horsefeathers>\n\n" +
+                "=over 4\n\n" +
+                "=item one\n\n" +
+                "=back\n\n" +
+                "=back"
+        );
+
+        taco.function("podchecker").invoke(in, out);
+
+        out.method("pos").invoke(0);
+
+        Taco.Object.Method getLine = out.method("getline");
+
+        assertThat((String) getLine.invoke(),
+                containsString("empty =head1"));
+
+        assertThat((String) getLine.invoke(),
+                containsString("Unknown entity E<horsefeathers>"));
+
+        assertThat((String) getLine.invoke(),
+                containsString("=back without previous =over"));
+    }
 }

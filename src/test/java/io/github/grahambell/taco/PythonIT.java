@@ -24,9 +24,12 @@ import java.util.List;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -112,5 +115,42 @@ public class PythonIT {
                 Arrays.asList(dt_cp), null);
 
         assertThat(repr, startsWith("datetime.datetime(2010"));
+    }
+
+    @Test
+    public void testReConvenience() throws TacoException {
+        taco.importModule("re");
+
+        Taco.Function re = taco.function("re.compile");
+
+        Taco.Object pattern = (Taco.Object) re.invoke("^(egg) (\\w+)");
+
+        Taco.Object.Method search = pattern.method("search");
+
+        Object res1 = search.invoke("chicken egg");
+        Object res2 = search.invoke("egg chicken");
+
+        assertNull(res1);
+        assertNotNull(res2);
+
+        List groups = (List) ((Taco.Object) res2).method("groups").invoke();
+
+        assertEquals(2, groups.size());
+        assertEquals("egg", groups.get(0));
+        assertEquals("chicken", groups.get(1));
+
+        try {
+            taco.importModule("StringIO", Arrays.asList("StringIO"));
+        }
+        catch (TacoException e) {
+            taco.importModule("io", Arrays.asList("StringIO"));
+        }
+
+        Taco.Object io = taco.constructor("StringIO").invoke();
+        io.method("write").invoke(taco.function("repr").invoke(res2));
+
+        String output = (String) io.method("getvalue").invoke();
+
+        assertThat(output, containsString("SRE_Match"));
     }
 }
