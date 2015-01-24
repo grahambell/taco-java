@@ -37,7 +37,7 @@ public class TransportTest {
         String input = "{\"action\":\"test\"}\n// END\n";
 
         ByteArrayInputStream inStream =
-                new ByteArrayInputStream( input.getBytes("UTF-8"));
+                new ByteArrayInputStream(input.getBytes("UTF-8"));
         ByteArrayOutputStream outStream =
                 new ByteArrayOutputStream();
 

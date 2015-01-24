@@ -534,7 +534,6 @@ public class Taco implements TacoTransport.Filter {
                     .putc("name", name));
         }
 
-
         /**
          * Set the value of an attribute of the corresponding object in the
          * server's cache.
