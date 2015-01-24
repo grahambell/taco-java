@@ -20,6 +20,8 @@ package io.github.grahambell.taco;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.IllegalArgumentException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -168,8 +170,7 @@ public class TacoServer implements TacoTransport.Filter {
             return cls.getMethod(name).invoke(null);
         }
         else {
-            return cls.getMethod(name, typeArray(args))
-                    .invoke(null, (Object[]) args.toArray());
+            return invokeMethod(cls, name, null, (Object[]) args.toArray());
         }
     }
 
@@ -194,9 +195,8 @@ public class TacoServer implements TacoTransport.Filter {
             return object.getClass().getMethod(name).invoke(object);
         }
         else {
-            return object.getClass()
-                    .getMethod(name, typeArray(args))
-                    .invoke(object, (Object[]) args.toArray());
+            return invokeMethod(object.getClass(), name, object,
+                    (Object[]) args.toArray());
         }
     }
 
@@ -212,9 +212,18 @@ public class TacoServer implements TacoTransport.Filter {
             return cls.getConstructor().newInstance();
         }
         else {
-            return cls.getConstructor(typeArray(args))
-                    .newInstance((Object[]) args.toArray());
+            // Try all the constructors to see if one accepts our signature.
+            for (Constructor c: cls.getConstructors()) {
+                try {
+                    return c.newInstance((Object[]) args.toArray());
+                }
+                catch (IllegalArgumentException e) {
+                    // Signature didn't match: ignore and try the next one.
+                }
+            }
         }
+
+        throw new TacoException("no matching constructor signature found");
     }
 
     /**
@@ -308,41 +317,33 @@ public class TacoServer implements TacoTransport.Filter {
     }
 
     /**
-     * Create an array of Classes corresponding to a set of
-     * method arguments.
+     * Invoke a static ("class") or instance method by name.
      *
-     * This method builds an array of Class objects which can be
-     * used to find a method or constructor based on its
-     * signature via reflection.
-     *
-     * @param args collection of method arguments
-     * @return array of Class objects for the given arguments
+     * @param cls class of the object, passed separately in case the
+     *     method is static.
+     * @param name the method name
+     * @param object the object for instance methods, or null for static
+     *     methods
+     * @param args array of method arguments
+     * @throws TacoException if no matching method is found
+     * @throws Exeception on failure
      */
-    public static Class[] typeArray(List<Object> args) {
-        Class[] types = new Class[args.size()];
-        int i = 0;
-
-        for (Object value: args) {
-            Class type;
-
-            // TODO: also handle long?  The JSON library will return int
-            // if the value fits, otherwise long...
-            if (value instanceof Integer) {
-                type = int.class;
+    private Object invokeMethod(Class cls, String name, Object object,
+            Object[] args) throws Exception {
+        // Try all the methods to see if one accepts our signature.
+        for (Method m: cls.getMethods()) {
+            if (m.getName().equals(name)) {
+                try {
+                    return m.invoke(object, args);
+                }
+                catch (IllegalArgumentException e) {
+                    // Signature didn't match: ignore and try the next one.
+                }
             }
-            else if (value instanceof Double) {
-                type = double.class;
-            }
-            else if (value instanceof Boolean) {
-                type = boolean.class;
-            }
-            else {
-                type = value.getClass();
-            }
-
-            types[i++] = type;
         }
 
-        return types;
+        // If we didn't return a result already, then we didn't find a
+        // match.
+        throw new TacoException("no matching method name/signature found");
     }
 }
