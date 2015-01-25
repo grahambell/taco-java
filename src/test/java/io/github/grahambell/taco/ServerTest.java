@@ -18,6 +18,7 @@
 
 package io.github.grahambell.taco;
 
+import java.text.DateFormat;
 import java.util.Arrays;
 
 import org.json.JSONArray;
@@ -134,7 +135,7 @@ public class ServerTest extends TacoServer {
                 .put("class", "java.text.DateFormat")
                 .put("name", "getDateInstance")
                 .put("args", new JSONArray(new Object[] {
-                        new Integer(3),
+                        new Integer(DateFormat.SHORT),
                         new JSONObject().put("_Taco_Object_", 2)
                 }))
                 .put("kwargs", JSONObject.NULL),
