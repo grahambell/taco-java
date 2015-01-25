@@ -127,6 +127,14 @@ public class ClientTest extends Taco {
                 .put("context", JSONObject.NULL)
         ));
 
+        getClassAttribute("SomeClass", "SOME_ATTR");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "get_class_attribute")
+                .put("class", "SomeClass")
+                .put("name", "SOME_ATTR")
+        ));
+
         getValue("SomeVariable");
 
         assertThat(xp.getMessage(), matchesJson(new JSONObject()
@@ -142,6 +150,15 @@ public class ClientTest extends Taco {
                 .put("name", "SomeModule")
                 .put("args", new JSONArray(new String[]{"alpha", "bravo"}))
                 .put("kwargs", new JSONObject().put("charlie", "delta"))
+        ));
+
+        setClassAttribute("AnotherClass", "ANOTHER_ATTR", "new value");
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "set_class_attribute")
+                .put("class", "AnotherClass")
+                .put("name", "ANOTHER_ATTR")
+                .put("value", "new value")
         ));
 
         setValue("SomeValue", null);

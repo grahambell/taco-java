@@ -246,6 +246,16 @@ public class TacoServer implements TacoTransport.Filter {
     }
 
     /**
+     * Handler for the "get_class_attribute" action.
+     */
+    public Object get_class_attribute(Map<String, Object> message)
+            throws Exception {
+        Class cls = Class.forName((String) message.get("class"));
+        String name = (String) message.get("name");
+        return cls.getField(name).get(null);
+    }
+
+    /**
      * Handler for the "get_value" action.
      */
     public Object get_value(Map<String, Object> message)
@@ -271,6 +281,17 @@ public class TacoServer implements TacoTransport.Filter {
         Object object = objects.get((Integer) message.get("number"));
         String name = (String) message.get("name");
         object.getClass().getField(name).set(object, message.get("value"));
+        return null;
+    }
+
+    /**
+     * Handler for the "set_class_attribute" action.
+     */
+    public Object set_class_attribute(Map<String, Object> message)
+            throws Exception {
+        Class cls = Class.forName((String) message.get("class"));
+        String name = (String) message.get("name");
+        cls.getField(name).set(null, message.get("value"));
         return null;
     }
 

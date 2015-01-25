@@ -217,5 +217,35 @@ public class ServerTest extends TacoServer {
 
         assertEquals(objectNum, 4);
         assertEquals(objects.size(), 1);
+
+        // Test class attribute actions.
+        xp.setResponse(new JSONObject()
+                .put("action", "get_class_attribute")
+                .put("class", "io.github.grahambell.taco.ExampleClass")
+                .put("name", "attr_one"),
+                true);
+
+        run();
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "result")
+                .put("result", 5678)
+        ));
+
+        xp.setResponse(new JSONObject()
+                .put("action", "set_class_attribute")
+                .put("class", "io.github.grahambell.taco.ExampleClass")
+                .put("name", "attr_one")
+                .put("value", 8765),
+                true);
+
+        run();
+
+        assertThat(xp.getMessage(), matchesJson(new JSONObject()
+                .put("action", "result")
+                .put("result", JSONObject.NULL)
+        ));
+
+        assertEquals(8765, ExampleClass.attr_one);
     }
 }

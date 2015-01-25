@@ -209,6 +209,22 @@ public class Taco implements TacoTransport.Filter {
     }
 
     /**
+     * Get the value of a class (static) attribute.
+     *
+     * @param className the name of the class
+     * @param name the name of the attribute
+     * @return the value of the attribute
+     * @throws TacoException on error
+     */
+    public java.lang.Object getClassAttribute(String className, String name)
+            throws TacoException {
+        return interact(new HashMapC()
+                .putc("action", "get_class_attribute")
+                .putc("class", className)
+                .putc("name", name));
+    }
+
+    /**
      * Get the value of the given variable.
      *
      * @param name the name of the variable
@@ -260,6 +276,24 @@ public class Taco implements TacoTransport.Filter {
      */
     public void importModule(String name) throws TacoException {
         importModule(name, null, null);
+    }
+
+    /**
+     * Set the value of a class (static) attribute.
+     *
+     * @param className the name of the class
+     * @param name the name of the attribute
+     * @param value the new value for the attribute
+     * @throws TacoException on error
+     */
+    public void setClassAttribute(String className, String name,
+            java.lang.Object value)
+            throws TacoException {
+        interact(new HashMapC()
+                .putc("action", "set_class_attribute")
+                .putc("class", className)
+                .putc("name", name)
+                .putc("value", value));
     }
 
     /**
